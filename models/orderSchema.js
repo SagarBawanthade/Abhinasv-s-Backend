@@ -18,7 +18,7 @@ const OrderSchema = new mongoose.Schema({
     country: { type: String, required: true }
   },
   paymentInformation: {
-    method: { type: String, enum: ['on', 'RazorPay'], required: true },
+    method: { type: String, enum: ['on', 'Razorpay'], required: true },
     
   },
   orderSummary: {

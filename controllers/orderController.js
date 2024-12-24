@@ -3,6 +3,15 @@ import Order from "../models/orderSchema.js";
 import Product from "../models/productSchema.js";
 import User from "../models/userSchema.js";
 import mongoose from "mongoose";
+import Razorpay from "razorpay";
+
+
+export const razorpayInstance = new Razorpay({
+  key_id: process.env.RAZORPAY_KEY_ID, // Replace with your Razorpay Key ID
+  key_secret: process.env.RAZORPAY_KEY_SECRET,
+  
+});
+
 
 
 export const createOrder = async (req, res) => {
@@ -72,6 +81,24 @@ export const createOrder = async (req, res) => {
       message: "Failed to create order",
       details: error.message,
     });
+  }
+};
+
+
+export const createRazorpayOrder = async (req, res) => {
+  const { amount } = req.body; // Amount in rupees
+  try {
+    const options = {
+      amount: amount , // Convert to smallest currency unit (e.g., paisa for INR)
+      currency: "INR",
+      receipt: `receipt_${Date.now()}`,
+    };
+
+    const order = await razorpayInstance.orders.create(options);
+    res.status(201).json({ orderId: order.id });
+  } catch (error) {
+    console.error("Error creating Razorpay order:", error);
+    res.status(500).json({ message: "Failed to create Razorpay order" });
   }
 };
 
