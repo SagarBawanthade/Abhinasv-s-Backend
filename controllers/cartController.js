@@ -5,64 +5,74 @@ import Product from "../models/productSchema.js";
 
 
 export const addToCart = async (req, res) => {
-  try {
-    const { userId, productId, items } = req.body;
+  const { productId, quantity, color, size, giftWrapping } = req.body;
 
-    // Find or create the cart for the user
-    let cart = await Cart.findOne({ user: userId });
+  if (!productId || !quantity || !color || !size) {
+    return res.status(400).json({ error: "All fields are required" });
+  }
+
+  try {
+    // Check if the user is authenticated
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({ error: "User not authenticated" });
+    }
+
+    // Find the product
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ error: "Product not found" });
+    }
+
+    // Find the user's cart
+    let cart = await Cart.findOne({ user: req.user._id });
 
     if (!cart) {
-      // Create a new cart if one does not exist for the user
-      cart = new Cart({ user: userId, items: [] }); // Initialize items as an empty array
+      // If the cart doesn't exist, create a new one
+      cart = new Cart({
+        user: req.user._id,
+        items: [],
+      });
     }
 
-    // Ensure the items array is not undefined
-    if (!cart.items) {
-      cart.items = []; // Make sure items is an empty array if it's undefined
-    }
+    // Define gift wrapping cost
+    const giftWrappingCost = giftWrapping ? 30 : 0;
 
-    // Add or update the products in the cart
-    items.forEach((item) => {
-      const existingProductIndex = cart.items.findIndex(
-        (product) =>
-          product.product.toString() === item.id && // Compare product ID correctly
-          product.size === item.size && 
-          product.color === item.color
-      );
 
-      if (existingProductIndex >= 0) {
-        // Update the quantity of the existing product if already in the cart
-        cart.items[existingProductIndex].quantity += item.quantity;
-      } else {
-        // Add the new product if it does not already exist in the cart
-        cart.items.push({
-          product: item.id,
-          quantity: item.quantity,
-          size: item.size,
-          color: item.color,
-          image: item.image,
-          title: item.title,
-          price: item.price,
-        });
-      }
-    });
-
-    // Recalculate total price (optional based on your logic)
-    cart.totalPrice = cart.items.reduce(
-      (total, item) => total + item.price * item.quantity,
-      0
+    // Check if the product is already in the cart
+    const existingItemIndex = cart.items.findIndex(
+      (item) => item.product.toString() === productId && item.size === size && item.color === color
     );
 
-    // Save the updated cart
+    if (existingItemIndex >= 0) {
+      // If the product exists in the cart, update its quantity and gift wrapping preference
+      const existingItem = cart.items[existingItemIndex];
+      existingItem.quantity += quantity;
+      existingItem.giftWrapping = giftWrapping; // Update gift wrapping
+      // You can also update the total price by adding gift wrapping cost for the product
+      existingItem.totalPrice = (existingItem.price + giftWrappingCost) * existingItem.quantity;
+    } else {
+      // Add new item to cart
+      const newItem = {
+        product: productId,
+        quantity,
+        size,
+        color,
+        giftWrapping,
+        price: product.price,
+        name: product.name,
+        images: product.images,
+        totalPrice: (product.price + giftWrappingCost) * quantity, 
+      };
+      cart.items.push(newItem);
+    }
+
+    // Save the cart
     await cart.save();
 
-    res.status(200).json({
-      message: "Product added to cart successfully",
-      cart: cart.items, // Return the updated cart items
-    });
+    res.status(200).json({ message: "Item added to cart", cart });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: "Failed to add product to cart" });
+    res.status(500).json({ error: "Internal server error" });
   }
 };
 
