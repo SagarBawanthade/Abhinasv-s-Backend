@@ -26,7 +26,8 @@ const OrderSchema = new mongoose.Schema({
       product: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', required: true }, // Reference to Product
       productName: { type: String, required: true },
       productImage: { type: [String], required: true },
-      
+      color:{ type: String, required: true },
+      giftWrapping: { type: Boolean, default: false },
       price: { type: Number, required: true },
       quantity: { type: Number, required: true },
       size: { type: String }

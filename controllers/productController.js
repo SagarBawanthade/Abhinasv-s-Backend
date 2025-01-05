@@ -85,7 +85,7 @@ export const addProduct = [
   body("price").isFloat({ min: 0 }).withMessage("Price must be a positive number."),
   body("stock").isInt({ min: 0 }).withMessage("Stock must be a non-negative integer."),
   body("size").isArray().withMessage("Size must be an array."),
-  body("color").isArray().withMessage("Color must be an array."),
+  body("color").isString().withMessage("Color must be an String."),
   body("images").isArray().withMessage("Images must be an array."),
 
   // Handler to process the request after validation

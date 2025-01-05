@@ -6,6 +6,7 @@ import mongoose from "mongoose";
 import Razorpay from "razorpay";
 
 
+
 export const razorpayInstance = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID, // Replace with your Razorpay Key ID
   key_secret: process.env.RAZORPAY_KEY_SECRET,
@@ -63,6 +64,8 @@ export const createOrder = async (req, res) => {
           price: item.price,
           quantity: item.quantity,
           size: item.size,
+          color: item.color,
+          giftWrapping: item.giftWrapping || false,
         })),
         subtotal,
         total,
@@ -71,6 +74,7 @@ export const createOrder = async (req, res) => {
 
     await newOrder.save();
 
+    
     res.status(201).json({
       message: "Order created successfully",
       order: newOrder,
