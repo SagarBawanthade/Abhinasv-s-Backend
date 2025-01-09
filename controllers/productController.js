@@ -192,3 +192,85 @@ export const deleteProduct = async (req, res) => {
       res.status(500).json({ message: 'Server error' });
   }
 }
+
+
+
+export const updateProductDetails = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log("productId", id);  
+    const updateData = req.body;
+
+    // Validate if productId exists
+    const product = await Product.findById(id);
+   
+    if (!product) {
+      return res.status(404).json({ 
+        success: false, 
+        message: "Product not found" 
+      });
+    }
+
+    // Create a new details object with existing and updated values
+    const updatedDetails = {
+      ...product.details.toObject(), // Convert existing Map to plain object
+      ...updateData
+    };
+
+    // Validate the required fields in details
+    const requiredFields = [
+      'material',
+      'careInstructions',
+      'origin',
+      'shippingInfo',
+      'fabric',
+      'pattern',
+      'neck',
+      'sleeve',
+      'styleCode',
+      'occasion',
+     
+     
+      'knitType',
+      'suitableFor',
+     
+      'fabricCare',
+      'netQuantity'
+    ];
+
+    const missingFields = requiredFields.filter(field => !updatedDetails[field]);
+    if (missingFields.length > 0) {
+      return res.status(400).json({
+        success: false,
+        message: `Missing required fields: ${missingFields.join(', ')}`
+      });
+    }
+
+    // Update the product with new details
+    const updatedProduct = await Product.findByIdAndUpdate(
+      id,
+      { 
+        details: updatedDetails,
+        updatedAt: Date.now()
+      },
+      { 
+        new: true, // Return updated document
+        runValidators: true // Run schema validators
+      }
+    );
+
+    res.status(200).json({
+      success: true,
+      message: "Product details updated successfully",
+      product: updatedProduct
+    });
+
+  } catch (error) {
+    console.error("Error updating product details:", error);
+    res.status(500).json({
+      success: false,
+      message: "Error updating product details",
+      error: error.message
+    });
+  }
+};
