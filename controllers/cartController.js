@@ -3,10 +3,7 @@ import Cart from "../models/cartSchema.js";
 import Product from "../models/productSchema.js";
 
 export const addToCart = async (req, res) => {
-  const { productId, quantity, color, size, giftWrapping } = req.body;
-
-  
-  
+  const { product: productId, quantity, color, size, giftWrapping } = req.body;
 
   // Ensure no missing fields and validate properly
   if (!productId || !quantity || !color || !size) {
