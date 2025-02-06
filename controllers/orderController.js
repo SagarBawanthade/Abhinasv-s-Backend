@@ -74,6 +74,13 @@ export const createOrder = async (req, res) => {
     });
 
     await newOrder.save();
+
+
+
+
+ 
+
+
    
     
     
@@ -107,8 +114,6 @@ export const createRazorpayOrder = async (req, res) => {
     res.status(500).json({ message: "Failed to create Razorpay order" });
   }
 };
-
-
 
 
 export const getAllOrders = async (req, res) => {
@@ -210,7 +215,7 @@ export const deleteOrder = async (req, res) => {
 
 // emailTemplate.js
 const createEmailTemplate = (orderData) => {
-  const {_id, user, contactInformation, shippingInformation, paymentInformation, orderSummary} = orderData;
+  const {_id, user, contactInformation, shippingInformation, paymentInformation, orderSummary , status, orderDate} = orderData;
   
   return `<!DOCTYPE html>
 <html>
@@ -220,10 +225,10 @@ const createEmailTemplate = (orderData) => {
 <body>
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f9f9f9;">
         <div style="text-align: center; padding: 14px;">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTp9zCTxTTeD55Fa45aBsTOmGYMSoKLr86kCQ&s" alt="Company Logo" style="max-width: 100px;">
+            <img src="https://abhinavs-storage-09.s3.ap-south-1.amazonaws.com/products/IMG_0823.JPG" alt="Company Logo" style="max-width: 100px;">
         </div>
         
-        <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+        <div style="background-color: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(43, 37, 37, 0.1);">
             <div style="text-align: center; margin-bottom: 30px;">
                 <i class="fas fa-check-circle" style="color: #28a745; font-size: 48px;"></i>
                 <h2 style="color: #28a745; margin: 10px 0;">Order Confirmed!</h2>
@@ -300,12 +305,12 @@ const createEmailTemplate = (orderData) => {
                 <p style="font-size: 16px;">
                     <b>Status: </b>
                     <span style="background-color: #28a745; color: white; padding: 5px 15px; border-radius: 20px;">
-                        <i class="fas fa-check"></i> ${orderSummary.status}
+                        <i class="fas fa-check"></i> ${status}
                     </span>
                 </p>
                 <p style="color: #666;">
                     <i class="fas fa-calendar"></i> 
-                    Order Date: ${new Date(orderSummary.orderDate).toLocaleString()}
+                    Order Date: ${new Date(orderDate).toLocaleString()}
                 </p>
             </div>
 
@@ -329,13 +334,21 @@ const createEmailTemplate = (orderData) => {
 
 
 export const sendOrderEmail = async (req, res) => {
-  const { _id, user, contactInformation, shippingInformation, paymentInformation, orderSummary } = req.body.data.order;
- 
+  const { _id, user, contactInformation, shippingInformation, paymentInformation, orderSummary, status, orderDate } = req.body.data.order;
+
+
   
+ 
+
 
   if (!contactInformation || !shippingInformation || !_id) {
     return res.status(400).json({ error: "Missing required order details" });
   }
+
+  const userEmail = process.env.GMAIL_USER;
+  const password = process.env.GMAIL_PASSWORD;
+
+ 
 
   try {
     const transporter = nodemailer.createTransport({
@@ -343,12 +356,14 @@ export const sendOrderEmail = async (req, res) => {
       secure: true,
       port: 465,
       auth: {
-        user: "sagar.bawanthade2004@gmail.com",
-        pass: "lqqfdylaqxgoedpc",
+        user: userEmail,
+        pass: password,
       },
+      
     });
+    
 
-
+    
     const orderData = {
       _id,
       user,
@@ -356,18 +371,22 @@ export const sendOrderEmail = async (req, res) => {
       shippingInformation,
       paymentInformation,
       orderSummary,
+      status,
+      orderDate,
+
     };
     
 
     const mailOptions = {
-      from: "sagar.bawanthade2004@gmail.com",
+      from: userEmail,
       to: contactInformation.email,
-      subject: `Order Confirmation - Order ID: ${_id}`,
+      subject: `Abhinav's Order Confirmation - Order ID: ${_id}`,
       html: createEmailTemplate(orderData),
     };
 
    
     await transporter.sendMail(mailOptions);
+    console.log("Order confirmation email sent successfully!");
 
 
     res.status(200).json({ message: "Order confirmation email sent successfully!" });
