@@ -1,5 +1,5 @@
 import express from "express";
-import {  createOrder, createRazorpayOrder, deleteOrder, getAllOrders, getSingleOrders, sendOrderEmail, updateOrderStatus } from "../controllers/orderController.js";
+import {   createOrder, createRazorpayOrder, deleteOrder, getAllOrders, getSingleOrders, sendOrderEmail, updateOrderStatus } from "../controllers/orderController.js";
 import { verifyRazorpayPayment } from "../middleware/verifyRazorPayment.js";
 
 const router = express.Router();
@@ -14,6 +14,7 @@ router.post("/send-email",sendOrderEmail);
 
 router.post("/verify-razorpay-payment",verifyRazorpayPayment)
 router.post("/create-razorpay-order",createRazorpayOrder)
+
 
 
 
