@@ -85,7 +85,8 @@ export const addProduct = [
   body("price").isFloat({ min: 0 }).withMessage("Price must be a positive number."),
   body("stock").isInt({ min: 0 }).withMessage("Stock must be a non-negative integer."),
   body("size").isArray().withMessage("Size must be an array."),
-  body("color").isString().withMessage("Color must be an String."),
+  body("color").isArray().withMessage("Color must be an array of strings"),
+
   body("images").isArray().withMessage("Images must be an array."),
 
   // Handler to process the request after validation
@@ -133,7 +134,8 @@ export const updateProduct = [
     body("price").optional().isFloat({ min: 0 }).withMessage("Price must be a positive number."),
     body("stock").optional().isInt({ min: 0 }).withMessage("Stock must be a non-negative integer."),
     body("size").optional().isArray().withMessage("Size must be an array."),
-    body("color").optional().isString().withMessage("Color must be a string."),
+    body("color").isArray().withMessage("Color must be an array of strings"),
+ 
     body("images").optional().isArray().withMessage("Images must be an array."),
 
 
