@@ -6,7 +6,7 @@ export const addToCart = async (req, res) => {
   const { product: productId, quantity, color, size, giftWrapping } = req.body;
 
   // Ensure no missing fields and validate properly
-  if (!productId || !quantity || !color || !size) {
+  if (!productId || !quantity  || !size) {
     return res.status(400).json({ error: "All fields are required" });
   }
 
@@ -52,7 +52,7 @@ export const addToCart = async (req, res) => {
         product: productId,
         quantity,
         size,
-        color,
+        color: product.color && product.color.length > 0 ? color : "",
         giftWrapping,
         price: product.price,
         name: product.name,

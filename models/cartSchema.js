@@ -17,11 +17,8 @@ const cartItemSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    color: {
-      type: String,
-      required: true,
-      trim: true,
-    },
+    color: { type: String, trim: true, required: false, default: '' },
+    
     giftWrapping: {
       type: Boolean,
       default: false, // Default is no gift wrapping
