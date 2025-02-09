@@ -548,7 +548,7 @@ const emailHtml = createOrderStatusUpdateTemplate({
 
    
     await transporter.sendMail(mailOptions);
-   
+   console.log("Email Sent Successfully");
 
 
     res.status(200).json({ message: "Order confirmation email sent successfully!" });
