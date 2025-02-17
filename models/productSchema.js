@@ -14,7 +14,7 @@ const productSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["Hoodies", "Tshirt", "Oversize-Tshirt"], // Can expand to more categories later
+      enum: ["Hoodies", "Tshirt", "Oversize-Tshirt" , "Couple-Tshirt"], // Can expand to more categories later
       default: "Hoodies",
     },
     gender: {
