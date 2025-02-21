@@ -1,5 +1,5 @@
 import express from "express";
-import { addProduct, deleteProduct, getAllProducts, getSingleProduct, ImageUpload, updateProduct, updateProductDetails } from "../controllers/productController.js";
+import { addProduct, deleteProduct, getAllProducts, getProductsByCategory, getSingleProduct, ImageUpload, updateProduct, updateProductDetails, updateProductsSize } from "../controllers/productController.js";
 const router = express.Router();
 import multer from "multer";
 
@@ -9,7 +9,11 @@ router.post('/addproduct',  addProduct);
 router.put('/updateproduct/:id',updateProduct);
 router.delete('/deleteproduct/:id',deleteProduct);
 router.put("/update-product-details/:id",updateProductDetails);
-  
+
+//for test
+router.put('/products/category/:category', getProductsByCategory);
+router.put("/products/update-sizes", updateProductsSize);
+
 
 
 

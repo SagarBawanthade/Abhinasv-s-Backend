@@ -276,3 +276,81 @@ export const updateProductDetails = async (req, res) => {
     });
   }
 };
+
+
+
+// export const getProductsByCategory = async (req, res) => {
+//   try {
+//       const { category } = req.params;
+      
+//       // Fetch products of the given category
+//       const products = await Product.find({ category });
+      
+//       // Send response with count and products
+//       res.status(200).json({
+//           count: products.length,
+//           products
+//       });
+//   } catch (error) {
+//       res.status(500).json({ message: 'Server Error', error: error.message });
+//   }
+// };
+
+// New details to update
+const newDetails = {
+  material: "Premium Soft Cotton",
+  careInstructions: "Machine wash cold, tumble dry low",
+  origin: "Made in India",
+  shippingInfo: "Express shipping available 3 - 5 business days",
+  fabric: "Premium Soft Cotton",
+  pattern: "Solid with Graphic Print",
+  neck: "Round Neck",
+  sleeve: "Half Sleeve",
+  styleCode: "OS-1",
+  occasion: "Casual, Sports",
+  knitType: "Platinum Soft Cotton",
+  suitableFor: "Western Wear, Sports",
+  fabricCare: "Gentle Machine Wash, Do not bleach",
+  netQuantity: "1"
+};
+
+
+
+export const getProductsByCategory =  async (req, res) => {
+  try {
+      const category = req.params.category;
+
+      // Update all products matching the given category
+      const result = await Product.updateMany(
+          { category: category }, // Filter by category
+          { $set: { details: newDetails } } // Update details
+      );
+
+      res.json({
+          message: "Products updated successfully!",
+          modifiedCount: result.modifiedCount
+      });
+  } catch (error) {
+      console.error("Error updating products:", error);
+      res.status(500).json({ error: "Internal Server Error" });
+  }
+}
+
+
+export const updateProductsSize = async (req, res) => {
+  try {
+    // Update all products except the "Hoodies" category
+    const result = await Product.updateMany(
+      { category: { $ne: "Hoodies" } }, // Exclude "Hoodies"
+      { $addToSet: { size: "XXL" } } // Add "XXL" only if not present
+    );
+
+    res.json({
+      message: "Products updated successfully!",
+      modifiedCount: result.modifiedCount
+    });
+  } catch (error) {
+    console.error("Error updating products:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+};
