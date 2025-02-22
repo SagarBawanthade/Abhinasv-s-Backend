@@ -308,7 +308,7 @@ const newDetails = {
   sleeve: "Half Sleeve",
   styleCode: "OS-1",
   occasion: "Casual, Sports",
-  knitType: "Platinum Soft Cotton",
+  knitType: "Premium Soft Cotton",
   suitableFor: "Western Wear, Sports",
   fabricCare: "Gentle Machine Wash, Do not bleach",
   netQuantity: "1"
