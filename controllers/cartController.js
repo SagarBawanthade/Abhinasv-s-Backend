@@ -73,25 +73,96 @@ export const addToCart = async (req, res) => {
 };
 
 
-// Get all cart items for a specific user
+// // Get all cart items for a specific user
+// export const getCartItems = async (req, res) => {
+//   const { userId } = req.params; // assuming userId is passed as a parameter
+
+//   try {
+//     // Find the cart for the user
+//     const cart = await Cart.findOne({ user: userId }).populate('items.product'); // Populating product details
+
+//     if (!cart) {
+//       return res.status(404).json({ error: "Cart not found for this user" });
+//     }
+
+//     // Return the cart items along with product details
+//     res.status(200).json({ cart });
+//   } catch (error) {
+//     console.error(error);
+//     res.status(500).json({ error: "Internal Server Error" });
+//   }
+// };
+
+
+
+
 export const getCartItems = async (req, res) => {
-  const { userId } = req.params; // assuming userId is passed as a parameter
+  const { userId } = req.params;
 
   try {
-    // Find the cart for the user
-    const cart = await Cart.findOne({ user: userId }).populate('items.product'); // Populating product details
+    // Find and populate the cart
+    const cart = await Cart.findOne({ user: userId }).populate('items.product');
 
     if (!cart) {
       return res.status(404).json({ error: "Cart not found for this user" });
     }
 
-    // Return the cart items along with product details
-    res.status(200).json({ cart });
+    // Filter for T-shirts and check eligibility
+    const tshirtItems = cart.items.filter(item => 
+      item.product.category === "Tshirt" && item.quantity === 1
+    );
+
+    // Check if there are exactly 3 T-shirts with quantity 1
+    const isEligibleForOffer = tshirtItems.length === 3;
+
+    // Calculate prices
+    let totalPrice = 0;
+    if (isEligibleForOffer) {
+      // Apply special offer price for the 3 T-shirts
+      totalPrice = 1299;
+      
+      // Add prices of non-T-shirt items if any
+      const nonTshirtItems = cart.items.filter(item => 
+        item.product.category !== "Tshirt"
+      );
+      
+      const nonTshirtTotal = nonTshirtItems.reduce((sum, item) => 
+        sum + (item.product.price * item.quantity), 0
+      );
+      
+      totalPrice += nonTshirtTotal;
+    } else {
+      // Regular price calculation if not eligible
+      totalPrice = cart.items.reduce((sum, item) => 
+        sum + (item.product.price * item.quantity), 0
+      );
+    }
+
+    // Update cart with new total
+    cart.totalPrice = totalPrice;
+    await cart.save();
+
+    // Additional offer details for frontend
+    const offerDetails = {
+      isEligibleForOffer,
+      tshirtCount: tshirtItems.length,
+      remainingForOffer: Math.max(0, 3 - tshirtItems.length),
+      savings: isEligibleForOffer ? 
+        (tshirtItems.reduce((sum, item) => sum + item.product.price, 0) - 1299) : 0
+    };
+
+    res.status(200).json({
+      cart,
+      offerDetails
+    });
+
   } catch (error) {
-    console.error(error);
+    console.error('Error in getCartItems:', error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
+
 
 export const syncCart = async (req, res) => {
   const { userId, items } = req.body;
