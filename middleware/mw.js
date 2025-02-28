@@ -28,7 +28,7 @@ export const isAuthenticated = async (req, res, next) => {
 
       // Check token expiration
       if (decoded.exp && Date.now() >= decoded.exp * 1000) {
-        return res.status(401).json({ error: "Your session has expired. Please log in again." });
+        return res.status(401).json({ error: "Your Session has Expired , Please Log in again" });
       }
 
       req.user = user;
@@ -38,7 +38,7 @@ export const isAuthenticated = async (req, res, next) => {
         return res.status(401).json({ error: "Invalid token" });
       }
       if (jwtError.name === 'TokenExpiredError') {
-        return res.status(401).json({ error: "Token has expired" });
+        return res.status(401).json({ error: "Your Session has Expired , Please Log in again" });
       }
       throw jwtError;
     }
