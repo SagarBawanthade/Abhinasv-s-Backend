@@ -14,7 +14,7 @@ const productSchema = new mongoose.Schema(
     },
     category: {
       type: String,
-      enum: ["Hoodies", "Tshirt", "Oversize-Tshirt", "Couple-Tshirt","Polo-Tshirt","Plain-Tshirt"],
+      enum: ["Hoodies", "Tshirt", "Oversize-Tshirt", "Couple-Tshirt", "Polo-Tshirt", "Holi-Special", "Solid Color T-Shirt & Oversized" ],
       default: "Hoodies",
     },
     gender: {
