@@ -1,5 +1,5 @@
 import express from "express";
-import { addProduct, deleteProduct, getAllProducts, getProductsByCategory, getSingleProduct, ImageUpload, updateProduct, updateProductDetails, updateProductsSize } from "../controllers/productController.js";
+import { addProduct, deleteProduct, getAllProducts, getProductsByCategory, getSingleProduct, ImageUpload, updateProduct, updateProductDetails, updateProductsSize, uploadMiddleware } from "../controllers/productController.js";
 const router = express.Router();
 import multer from "multer";
 
@@ -17,11 +17,13 @@ router.put("/products/update-sizes", updateProductsSize);
 
 
 
-// Multer middleware to handle multiple file uploads
-const upload = multer({ storage: multer.memoryStorage() });
+// // Multer middleware to handle multiple file uploads
+// const upload = multer({ storage: multer.memoryStorage() });
 
-// Route to upload images
-router.post("/image-upload", upload.array("images", 5), ImageUpload);  // Max 5 images
+// // Route to upload images
+// router.post("/image-upload", upload.array("images", 5), ImageUpload);  // Max 5 images
+
+router.post('/image-upload', uploadMiddleware, ImageUpload);
 
 
 

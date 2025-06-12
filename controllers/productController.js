@@ -17,14 +17,26 @@ const s3 = new AWS.S3({
 
 // Multer configuration to handle image uploads in memory
 const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024, // 5MB limit per file
+  },
+  fileFilter: (req, file, cb) => {
+    // Accept only image files
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
 
-// Image upload function
 export const ImageUpload = async (req, res) => {
   try {
     const files = req.files; // Handle multiple files
 
-    if (!files) {
+    if (!files || files.length === 0) {
       return res.status(400).json({ error: "No files uploaded" });
     }
 
@@ -33,12 +45,14 @@ export const ImageUpload = async (req, res) => {
 
     // Upload each image to S3
     for (const file of files) {
+      // Fix template literal syntax
       const fileKey = `products/${uuidv4()}_${file.originalname}`;
       const uploadParams = {
         Bucket: process.env.AWS_BUCKET_NAME,
         Key: fileKey,
         Body: file.buffer,
         ContentType: file.mimetype,
+        ACL: 'public-read', // Make images publicly accessible
       };
 
       const result = await s3.upload(uploadParams).promise();
@@ -48,9 +62,12 @@ export const ImageUpload = async (req, res) => {
     // Send back the image URLs
     res.status(200).json({ imageUrls });
   } catch (error) {
-    res.status(500).json({ error: "Failed to upload image." });
+    console.error('Image upload error:', error);
+    res.status(500).json({ error: "Failed to upload image: " + error.message });
   }
 };
+
+export const uploadMiddleware = upload.array('images', 10);
 
 
 
