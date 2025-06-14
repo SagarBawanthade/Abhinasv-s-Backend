@@ -108,8 +108,8 @@ export const getCartItems = async (req, res) => {
     }
 
     // Filter for T-shirts and check eligibility
-    const tshirtItems = cart.items.filter(item => 
-      item.product.category === "Tshirt" && item.quantity === 1
+    const tshirtItems = cart.items.filter(item =>
+      item.product && item.product.category === "Tshirt" && item.quantity === 1
     );
 
     // Check if there are exactly 3 T-shirts with quantity 1
@@ -120,20 +120,21 @@ export const getCartItems = async (req, res) => {
     if (isEligibleForOffer) {
       // Apply special offer price for the 3 T-shirts
       totalPrice = 1299;
-      
+
       // Add prices of non-T-shirt items if any
-      const nonTshirtItems = cart.items.filter(item => 
-        item.product.category !== "Tshirt"
+      const nonTshirtItems = cart.items.filter(item =>
+        item.product && item.product.category !== "Tshirt"
       );
-      
-      const nonTshirtTotal = nonTshirtItems.reduce((sum, item) => 
+
+      const nonTshirtTotal = nonTshirtItems.reduce((sum, item) =>
         sum + (item.product.price * item.quantity), 0
       );
-      
+
       totalPrice += nonTshirtTotal;
     } else {
       // Regular price calculation if not eligible
-      totalPrice = cart.items.reduce((sum, item) => 
+      const validItems = cart.items.filter(item => item.product); // filter out null products
+      totalPrice = validItems.reduce((sum, item) =>
         sum + (item.product.price * item.quantity), 0
       );
     }
@@ -147,7 +148,7 @@ export const getCartItems = async (req, res) => {
       isEligibleForOffer,
       tshirtCount: tshirtItems.length,
       remainingForOffer: Math.max(0, 3 - tshirtItems.length),
-      savings: isEligibleForOffer ? 
+      savings: isEligibleForOffer ?
         (tshirtItems.reduce((sum, item) => sum + item.product.price, 0) - 1299) : 0
     };
 
@@ -161,6 +162,7 @@ export const getCartItems = async (req, res) => {
     res.status(500).json({ error: "Internal Server Error" });
   }
 };
+
 
 
 
