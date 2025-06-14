@@ -182,29 +182,33 @@ export const syncCart = async (req, res) => {
     let cart = await Cart.findOne({ user: userId });
     
     if (!cart) {
-      // If no cart exists, create new one with local items
+      // If no cart exists, create new one
       cart = new Cart({ user: userId, items: [] });
     }
 
-    // For each item in the local cart
     for (const localItem of items) {
-      // Check if item already exists in cart (match product, size, and color)
-      const existingItemIndex = cart.items.findIndex(item => 
+      // Normalize color value to string
+      const normalizedColor = Array.isArray(localItem.color)
+        ? localItem.color[0] || ''
+        : localItem.color;
+
+      // Check if item already exists in cart (product, size, color)
+      const existingItemIndex = cart.items.findIndex(item =>
         item.product.toString() === localItem.product &&
         item.size === localItem.size &&
-        item.color === localItem.color
+        item.color === normalizedColor
       );
 
       if (existingItemIndex !== -1) {
         // If item exists, update quantity
         cart.items[existingItemIndex].quantity += localItem.quantity;
       } else {
-        // If item doesn't exist, add it to cart
+        // Add new item to cart
         cart.items.push({
           product: localItem.product,
           quantity: localItem.quantity,
           size: localItem.size,
-          color: localItem.color,
+          color: normalizedColor,
           price: localItem.price,
           name: localItem.name,
           images: localItem.images,
@@ -213,19 +217,18 @@ export const syncCart = async (req, res) => {
       }
     }
 
-    // Calculate total price
+    // Recalculate total price
     let totalPrice = cart.items.reduce((total, item) => {
       return total + (item.price * item.quantity);
     }, 0);
 
     cart.totalPrice = totalPrice;
-    
-    // Save the updated cart
+
     await cart.save();
 
-    return res.status(200).json({ 
-      message: 'Cart synced successfully', 
-      cart: cart 
+    return res.status(200).json({
+      message: 'Cart synced successfully',
+      cart: cart
     });
   } catch (error) {
     console.error('Error syncing cart:', error);
