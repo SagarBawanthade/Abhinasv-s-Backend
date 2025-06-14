@@ -44,5 +44,5 @@ jobs:
             cd ~/Abhinasv-s-Backend
             docker compose down
             sed -i 's|sagarbawanthade/abhinavs-backend:.*|sagarbawanthade/abhinavs-backend:${{ env.TAG }}|' docker-compose.yaml
-            docker compose pull
+            docker pull sagarbawanthade/abhinavs-backend:${{ env.TAG }}
             docker compose up -d
