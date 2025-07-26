@@ -5,6 +5,7 @@ import productRoute from './routes/productRoute.js';
 import userRoute from './routes/userRoute.js';
 import orderRoute from './routes/orderRoute.js';
 import cartRoute from './routes/cartRoute.js';
+import customStyleRoutes from './routes/customStyleRoutes.js';
 
 
 import cors from 'cors';
@@ -23,6 +24,7 @@ app.use('/api/product', productRoute);
 app.use('/api/auth', userRoute);
 app.use('/api/order', orderRoute);
 app.use('/api/cart', cartRoute);
+app.use('/api/custom-style', customStyleRoutes);
 
 
  
