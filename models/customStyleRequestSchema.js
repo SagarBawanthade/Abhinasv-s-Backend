@@ -3,11 +3,11 @@ import mongoose from 'mongoose';
 
 const customStyleRequestSchema = new mongoose.Schema({
   imageUrls: {
-    type: [String], // Array of strings to store image URLs
+    type: [String],
     required: true,
     validate: {
-      validator: function(v) {
-        return v && v.length > 0; // At least one image URL required
+      validator: function (v) {
+        return v && v.length > 0;
       },
       message: 'At least one image URL is required'
     }
@@ -37,6 +37,21 @@ const customStyleRequestSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+
+  product: {
+  name: { type: String, required: true },
+  images: { type: [String], required: true }, // from frontend
+  price: { type: Number, required: true },
+},
+  selectedSize: {
+    type: String,
+    required: true,
+  },
+  selectedColor: {
+    type: String,
+    required: true,
+  }
+
 }, {
   timestamps: true,
 });

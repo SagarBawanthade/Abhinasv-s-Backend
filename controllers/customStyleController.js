@@ -27,9 +27,18 @@ export const customUpload = multer({
 export const submitCustomStyleRequest = async (req, res) => {
   try {
     const file = req.file; // Single file, not files array
-    const { firstName, email, userId } = req.body;
+   const {
+  firstName,
+  email,
+  userId,
+  productName,
+  selectedColor,
+  productImages,
+  productPrice,
+  selectedSize
+} = req.body;
 
-    console.log('Received data:', { firstName, email, userId, hasFile: !!file });
+   
 
     // Validation
     if (!userId) {
@@ -58,35 +67,45 @@ export const submitCustomStyleRequest = async (req, res) => {
     try {
       const result = await s3.upload(uploadParams).promise();
       imageUrl = result.Location;
-      console.log('S3 Upload successful:', imageUrl);
+     
     } catch (uploadError) {
       console.error('S3 Upload Error:', uploadError);
       return res.status(500).json({ error: 'Failed to upload image to S3: ' + uploadError.message });
     }
 
     // Save the request to database
-    const request = new CustomStyleRequest({
-      firstName: requestName,
-      email: requestEmail,
-      userId,
-      imageUrls: [imageUrl], // Array with single URL to match schema
-    });
+const request = new CustomStyleRequest({
+  firstName: requestName,
+  email: requestEmail,
+  userId,
+  imageUrls: [imageUrl],
+  selectedColor,
+  selectedSize,
+  product: {
+    name: productName,
+    images: JSON.parse(productImages), // assuming it's stringified array
+    price: Number(productPrice),
+  }
+});
 
     const savedRequest = await request.save();
     // console.log('Request saved to DB:', savedRequest._id);
+res.status(201).json({ 
+  message: 'Custom style request submitted successfully', 
+  request: {
+    id: savedRequest._id,
+    firstName: savedRequest.firstName,
+    email: savedRequest.email,
+    userId: savedRequest.userId,
+    imageUrls: savedRequest.imageUrls,
+    selectedColor: savedRequest.selectedColor,
+    selectedSize: savedRequest.selectedSize,
+    product: savedRequest.product,
+    submittedAt: savedRequest.submittedAt,
+    createdAt: savedRequest.createdAt
+  }
+});
 
-    res.status(201).json({ 
-      message: 'Custom style request submitted successfully', 
-      request: {
-        id: savedRequest._id,
-        firstName: savedRequest.firstName,
-        email: savedRequest.email,
-        userId: savedRequest.userId,
-        imageUrls: savedRequest.imageUrls,
-        submittedAt: savedRequest.submittedAt,
-        createdAt: savedRequest.createdAt
-      }
-    });
 
   } catch (err) {
    
